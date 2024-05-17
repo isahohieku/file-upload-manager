@@ -1,18 +1,21 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Button } from '@radix-ui/themes';
-import { SVGProps, useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { SVGProps, useCallback } from 'react';
+import { useDropzone, Accept } from 'react-dropzone';
+import { useFilesUpload } from '../contexts/filesUploaderContext';
 
 export default function FileUploader() {
-    const [files, setFiles] = useState<File[]>([]);
+  const { handleOnFilesUploaded } = useFilesUpload();
+
+  const accept: Accept = {
+    'image/jpeg': ['.jpeg', '.jpg']
+  }
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
-        setFiles(acceptedFiles);
-
-        console.log({ acceptedFiles })
+        handleOnFilesUploaded(acceptedFiles);
     }, []);
 
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept });
 
     return (<div
         {...getRootProps()}
@@ -21,9 +24,9 @@ export default function FileUploader() {
         <p className="text-gray-500 dark:text-gray-400">Drag and drop your files here</p>
         <Dialog.Root>
             <Dialog.Trigger asChild>
-                <Button variant='outline' className='hover:text-white hover:bg-purple-900 cursor-pointer' >
+                <Button variant='outline'>
                     Select Files
-                    <input className="hidden" type="file" {...getInputProps()} />
+                    <input className="hidden" type="file" {...getInputProps()} accept='image/jpeg' />
                 </Button>
             </Dialog.Trigger>
         </Dialog.Root>
