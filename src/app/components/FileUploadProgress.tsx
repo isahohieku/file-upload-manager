@@ -1,18 +1,33 @@
 import { Progress } from '@radix-ui/themes';
-import { SVGProps } from 'react';
+import { SVGProps, useEffect, useState } from 'react';
 import { UploadedFile } from '../types/files';
+import { checkStatus } from '../services/dragonfly';
+import { useProgress } from '../hooks/useProgressHook';
 
-interface Prop extends UploadedFile {}
+interface Prop extends UploadedFile { }
 
-export default function FileUploadProgress({ progress, file }: Prop) {
+export default function FileUploadProgress({ progress, file, taskId }: Prop) {
+  const [status, setStatus] = useState(false);
+
+  const { killProgress, progressCount } = useProgress();
+
+  useEffect(() => {
+    if (taskId) {
+      checkStatus(taskId)
+        .then(({ status: _status }) => {
+          setStatus(_status === 'SUCCEEDED');
+          killProgress();
+        }).catch(() => killProgress());
+    }
+  }, [taskId]);
   return (<div className="flex items-center justify-between bg-gray-100 rounded-md p-2 w-full max-w-md">
     <div className="flex items-center space-x-2">
       <FileIcon className="h-5 w-5 text-gray-500" />
       <span className="font-medium">{file.name}</span>
     </div>
     <div className="flex items-center space-x-2">
-      <Progress className="w-24" value={progress} />
-      <span className="text-gray-500">{progress}%</span>
+      <Progress className="w-24" value={progress === 100 ? progress : progressCount} />
+      <span className="text-gray-500">{progress === 100 ? progress : progressCount}%</span>
     </div>
   </div>)
 }
