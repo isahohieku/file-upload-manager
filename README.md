@@ -5,10 +5,10 @@
 # Setup
 
 ## Step 1
-Install NextJS on your machine if you don't already
+Install dependencies
 
 ```bash
-npx create-next-app@latest
+yarn install
 ```
 
 ## Step 2
